@@ -30,7 +30,7 @@ router.post("/sensor", async (req, res) => {
 
         res.status(500).json({
             status: "error",
-            message: error
+            message: error.message
         });
     }
 
@@ -50,7 +50,10 @@ router.get("/history", async (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json(error);
+        res.status(500).json({
+            status: "error",
+            message: error.message
+        });
     }
 
 });
@@ -65,14 +68,23 @@ router.get("/latest", async (req, res) => {
             .findOne()
             .sort({ timestamp: -1 });
 
+        if (!data) {
+            return res.json({
+                status: "no_data",
+                message: "No sensor data available"
+            });
+        }
+
         res.json(data);
 
     } catch (error) {
 
-        res.status(500).json(error);
+        res.status(500).json({
+            status: "error",
+            message: error.message
+        });
     }
 
 });
-
 
 module.exports = router;
