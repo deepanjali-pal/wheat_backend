@@ -1,26 +1,78 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const SensorData = require('../models/SensorData');
 
-// POST: Receives data from NodeMCU
-router.post('/update', async (req, res) => {
+const SensorData = require("../models/SensorData");
+
+
+// Send sensor data
+router.post("/sensor", async (req, res) => {
+
     try {
-        const newData = new SensorData(req.body);
-        await newData.save();
-        res.status(200).json({ message: "Data Saved" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+
+        const data = new SensorData({
+
+            temp: req.body.temp,
+            humidity: req.body.humidity,
+            moisture: req.body.moisture,
+            pH: req.body.pH,
+            rain: req.body.rain
+
+        });
+
+        await data.save();
+
+        res.json({
+            status: "success",
+            message: "Sensor Data Saved"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            status: "error",
+            message: error
+        });
     }
+
 });
 
-// GET: Sends latest data to Flutter App
-router.get('/latest', async (req, res) => {
+
+// Get sensor history
+router.get("/history", async (req, res) => {
+
     try {
-        const latest = await SensorData.findOne().sort({ timestamp: -1 });
-        res.json(latest);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+
+        const data = await SensorData
+            .find()
+            .sort({ timestamp: -1 });
+
+        res.json(data);
+
+    } catch (error) {
+
+        res.status(500).json(error);
     }
+
 });
+
+
+// Latest data
+router.get("/latest", async (req, res) => {
+
+    try {
+
+        const data = await SensorData
+            .findOne()
+            .sort({ timestamp: -1 });
+
+        res.json(data);
+
+    } catch (error) {
+
+        res.status(500).json(error);
+    }
+
+});
+
 
 module.exports = router;

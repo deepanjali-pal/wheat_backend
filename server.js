@@ -1,23 +1,31 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
+require("dotenv").config();
+
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
-app.use(express.json());
-app.use(cors());
 
-// Connect to MongoDB (Replace with your URI)
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/wheat_db')
-    .then(() => console.log("MongoDB Connected"))
-    .catch(err => console.log(err));
+app.use(cors());
+app.use(express.json());
+
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/wheat_db")
+.then(() => console.log("MongoDB Connected"))
+.catch(err => console.log(err));
 
 // Routes
-const apiRoutes = require('./routes/api');
-app.use('/api', apiRoutes);
+const apiRoutes = require("./routes/api");
+app.use("/api", apiRoutes);
 
-const PORT = process.env.PORT || 5000;
-// Adding '0.0.0.0' tells the server to listen to ANY device on your network
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is live at http://0.0.0.0:${PORT}`);
+// Home route
+app.get("/", (req, res) => {
+    res.send("Wheat Backend Running Successfully");
+});
+
+// Port
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
 });
