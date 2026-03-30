@@ -3,19 +3,30 @@ const router = express.Router();
 
 const SensorData = require("../models/SensorData");
 
+// -----------------------------
+// PUMP STATUS VARIABLE
+// -----------------------------
 
-// Send sensor data
+let pumpStatus = "OFF";
+
+// -----------------------------
+// SEND SENSOR DATA
+// -----------------------------
+
 router.post("/sensor", async (req, res) => {
 
     try {
 
         const data = new SensorData({
 
-            temp: req.body.temp,
-            humidity: req.body.humidity,
-            moisture: req.body.moisture,
-            pH: req.body.pH,
-            rain: req.body.rain
+            temp: req.body.temp || 0,
+            humidity: req.body.humidity || 0,
+            moisture: req.body.moisture || 0,
+            pH: req.body.pH || 0,
+            npk: req.body.npk || 0,
+            rain: req.body.rain || 0,
+            pumpStatus: req.body.pumpStatus || pumpStatus,
+            timestamp: new Date()
 
         });
 
@@ -33,11 +44,12 @@ router.post("/sensor", async (req, res) => {
             message: error.message
         });
     }
-
 });
 
+// -----------------------------
+// GET SENSOR HISTORY
+// -----------------------------
 
-// Get sensor history
 router.get("/history", async (req, res) => {
 
     try {
@@ -58,8 +70,10 @@ router.get("/history", async (req, res) => {
 
 });
 
+// -----------------------------
+// LATEST SENSOR DATA
+// -----------------------------
 
-// Latest data
 router.get("/latest", async (req, res) => {
 
     try {
@@ -70,8 +84,13 @@ router.get("/latest", async (req, res) => {
 
         if (!data) {
             return res.json({
-                status: "no_data",
-                message: "No sensor data available"
+                temp: 0,
+                humidity: 0,
+                moisture: 0,
+                pH: 0,
+                npk: 0,
+                rain: 0,
+                pumpStatus: pumpStatus
             });
         }
 
@@ -84,6 +103,47 @@ router.get("/latest", async (req, res) => {
             message: error.message
         });
     }
+
+});
+// -----------------------------
+// PUMP ON
+// -----------------------------
+
+router.post("/pump/on", async (req, res) => {
+
+    pumpStatus = "ON";
+
+    res.json({
+        status: "success",
+        pumpStatus: "ON"
+    });
+
+});
+
+// -----------------------------
+// PUMP OFF
+// -----------------------------
+
+router.post("/pump/off", async (req, res) => {
+
+    pumpStatus = "OFF";
+
+    res.json({
+        status: "success",
+        pumpStatus: "OFF"
+    });
+
+});
+
+// -----------------------------
+// PUMP STATUS
+// -----------------------------
+
+router.get("/pump/status", async (req, res) => {
+
+    res.json({
+        pumpStatus: pumpStatus
+    });
 
 });
 
