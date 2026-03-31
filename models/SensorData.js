@@ -4,9 +4,9 @@ const SensorSchema = new mongoose.Schema({
   temp: Number,
   humidity: Number,
   ph: Number,
-  n: Number,        // Ye add karna zaroori hai
-  p: Number,        // Ye bhi add karein
-  k: Number,        // Ye bhi add karein
+  n: Number,        
+  p: Number,        
+  k: Number,        
   moisture: Number,
   rain: Number,
   pumpStatus: String,
