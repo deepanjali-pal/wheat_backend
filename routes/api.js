@@ -1,150 +1,44 @@
 const express = require("express");
 const router = express.Router();
-
 const SensorData = require("../models/SensorData");
-
-// -----------------------------
-// PUMP STATUS VARIABLE
-// -----------------------------
 
 let pumpStatus = "OFF";
 
-// -----------------------------
-// SEND SENSOR DATA
-// -----------------------------
-
+// SEND SENSOR DATA (NodeMCU isi path par data bhej raha hai)
 router.post("/sensor", async (req, res) => {
-
     try {
-
         const data = new SensorData({
-
             temp: req.body.temp || 0,
             humidity: req.body.humidity || 0,
             moisture: req.body.moisture || 0,
             pH: req.body.pH || 0,
-            npk: req.body.npk || 0,
+            n: req.body.n || 0,
+            p: req.body.p || 0,
+            k: req.body.k || 0,
             rain: req.body.rain || 0,
-            pumpStatus: req.body.pumpStatus || pumpStatus,
+            pumpStatus: pumpStatus,
             timestamp: new Date()
-
         });
-
         await data.save();
-
-        res.json({
-            status: "success",
-            message: "Sensor Data Saved"
-        });
-
+        res.json({ status: "success", message: "Sensor Data Saved" });
     } catch (error) {
-
-        res.status(500).json({
-            status: "error",
-            message: error.message
-        });
+        res.status(500).json({ status: "error", message: error.message });
     }
 });
 
-// -----------------------------
-// GET SENSOR HISTORY
-// -----------------------------
-
-router.get("/history", async (req, res) => {
-
-    try {
-
-        const data = await SensorData
-            .find()
-            .sort({ timestamp: -1 });
-
-        res.json(data);
-
-    } catch (error) {
-
-        res.status(500).json({
-            status: "error",
-            message: error.message
-        });
-    }
-
-});
-
-// -----------------------------
-// LATEST SENSOR DATA
-// -----------------------------
-
+// GET LATEST DATA (App ke liye)
 router.get("/latest", async (req, res) => {
-
     try {
-
-        const data = await SensorData
-            .findOne()
-            .sort({ timestamp: -1 });
-
-        if (!data) {
-            return res.json({
-                temp: 0,
-                humidity: 0,
-                moisture: 0,
-                pH: 0,
-                npk: 0,
-                rain: 0,
-                pumpStatus: pumpStatus
-            });
-        }
-
-        res.json(data);
-
+        const data = await SensorData.findOne().sort({ timestamp: -1 });
+        res.json(data || {});
     } catch (error) {
-
-        res.status(500).json({
-            status: "error",
-            message: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
-
-});
-// -----------------------------
-// PUMP ON
-// -----------------------------
-
-router.post("/pump/on", async (req, res) => {
-
-    pumpStatus = "ON";
-
-    res.json({
-        status: "success",
-        pumpStatus: "ON"
-    });
-
 });
 
-// -----------------------------
-// PUMP OFF
-// -----------------------------
-
-router.post("/pump/off", async (req, res) => {
-
-    pumpStatus = "OFF";
-
-    res.json({
-        status: "success",
-        pumpStatus: "OFF"
-    });
-
-});
-
-// -----------------------------
-// PUMP STATUS
-// -----------------------------
-
-router.get("/pump/status", async (req, res) => {
-
-    res.json({
-        pumpStatus: pumpStatus
-    });
-
-});
+// PUMP CONTROLS
+router.post("/pump/on", (req, res) => { pumpStatus = "ON"; res.json({ pumpStatus: "ON" }); });
+router.post("/pump/off", (req, res) => { pumpStatus = "OFF"; res.json({ pumpStatus: "OFF" }); });
+router.get("/pump/status", (req, res) => { res.json({ pumpStatus: pumpStatus }); });
 
 module.exports = router;
