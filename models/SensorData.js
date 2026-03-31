@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const SensorSchema = new mongoose.Schema({
   temp: Number,
   humidity: Number,
-  ph: Number,
+  pH: Number,
   n: Number,        
   p: Number,        
   k: Number,        
